@@ -1,5 +1,89 @@
-﻿<h3>Delete</h3>
+﻿@page "/Tecnico/Delete"
+@page "/Tecnico/Delete/TecnicoId={TecnicoId:int}"
+@inject TecnicosServices tecnicosServices
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Eliminar T&eacute;cnico</PageTitle>
+
+<div class="container">
+    <div class="card shadow-header">
+
+        <div class="card-header  bg-primary text-white text-center py-2 rounded">
+            <h3><strong>Eliminar T&eacute;cnico</strong></h3>
+        </div>
+        <div class="card-header">
+            <h3 class="text-danger">¿Deseas eliminar este t&eacute;cnico?</h3>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-lg">
+                        <div class="card-header">
+                            <h3 class="text-center"><strong>Datos del t&eacute;cnico</strong></h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="border-primary border-2 borde">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <ul class="list-unstyled">
+                                                <li><strong>T&eacute;cnicoId:</strong> @Tecnico.TecnicosId</li>
+                                                <li><strong>Nombre:</strong> @Tecnico.TecnicosName</li>
+                                                <li><strong>SueldoHora:</strong> @Tecnico.SueldoHora</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <button type="button" class="btn btn-outline-danger" @onclick="EliminarPrioridad"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left"></i> Volver</button>
+        </div>
+    </div>
+</div>
+
+@if (Tecnico == null)
+{
+    <p>El Tecnico no aparece.</p>
+}
 
 @code {
+    [Parameter]
+    public int TecnicoId { get; set; }
+    public Tecnicos? Tecnico { get; set; } = new Tecnicos();
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (TecnicoId != 0)
+        {
+            Tecnico = await tecnicosServices.Buscar(TecnicoId);
+        }
+    }
+
+    public async Task EliminarPrioridad()
+    {
+        if (TecnicoId == 0 || Tecnico == null)
+        {
+            return;
+        }
+
+        if (await tecnicosServices.Eliminar(TecnicoId))
+        {
+            Volver();
+        }
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Create");
+    }
 }
+
