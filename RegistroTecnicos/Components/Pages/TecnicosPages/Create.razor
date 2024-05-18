@@ -7,31 +7,29 @@
 
 
 <PageTitle> Registro de Tecnicos</PageTitle>
-
+<EditForm Model="tecnico" OnInvalidSubmit=" Guardar" FormName="tecnicoForm">
 
 
         <DataAnnotationsValidator />
-        <div class="container">
+        <div class="container"> 
             <div class=" card shadow-lg">
-                <div class="card-header"
+                <div class="card-header">
                     <h3> Crear Tecnicos</h3>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        @*TecnicoId*@
-                        <div class="col-xs-12 col-sm-12 col-md-8 col col-lg-6 col-xl-4">...</div>
-                    </div>
-                    @*SueldoHora*@
-                    <div class="mb-3">...</div>
-                </div>
-                <div class="card-footer d-flex justify-content-between">
                     
-                        
-                 
-                </div>
-            </div>
-        </div>
-
+                        @*TecnicoId*@
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">...</div>
+                        <label for="TecnicoId" class="form-label">T&ecute;cnicoId:</label>
+                    </div class="input-group">
+                               <div style="width: 40%; height: 1em;">
+                                   <InputNumber @bind-Value="tecnico.TecnicosId"class="form-control" style="font-size: 0.8em;" aria-describedby="BotonBuscar" />
+                               </div>
+                               <ValidationMessage For="@(() => Tecnicos.TecnicoId)"
+       
+                  
+</EditForm>
 
 
 
@@ -39,7 +37,65 @@
 
 @code{
     [Parameter]
-    public int? tecnicoId { get; set; }
+    public int TecnicoId { get; set; }
+
+    public  Tecnicos tecnico { get; set;} = new Tecnicos();
+    private bool Existe = false;
+
+    public void Nuevo()
+    {
+        tecnico = new Tecnicos();
+        Existe = false;
+
+    }
+
+    public async Task Buscar()
+    {
+        Existe = false;
+        var tecnicoEncontrado = await tecnicoService.Buscar(tecnico.TecnicosId);
+
+        if (tecnicoEncontrado != null)
+        {
+            tecnico = tecnicoEncontrado;
+        }
+        else
+        {
+            Nuevo();
+        }
+    }
+
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            return;
+        }
+
+        var guardo = await tecnicoService.Guardar(tecnico);
+        if (guardo)
+        {
+            Nuevo();
+            navigationManager.NavigateTo("/Create");
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var eliminado = await tecnicoService.Eliminar(tecnico.TecnicosId);
+        Nuevo();
+    }
+
+    private void Retroceder()
+    {
+        navigationManager.NavigateTo("/Create");
+    }
+
+    public async Task<bool> Validar()
+    {
+        var listaTecnicos = await tecnicoService.Listar(t => t.TecnicosName.ToLower() == tecnico.TecnicosName.ToLower() && t.TecnicosId != tecnico.TecnicosId);
+        Existe = listaTecnicos.Any();
+        return Existe;
+    }
 
 }
 
