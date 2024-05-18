@@ -1,33 +1,54 @@
 ﻿@page "/Create"
 @page "/Create/{TecnicoId:int}"
-@inject  TecnicosServices tecnicoService
+@inject  TecnicosServices tecnicoServices
 @inject NavigationManager navigationManager
 @inject IJSRuntime jsRuntime
 @rendermode InteractiveServer
 
 
-<PageTitle> Registro de Tecnicos</PageTitle>
-<EditForm Model="tecnico" OnInvalidSubmit=" Guardar" FormName="tecnicoForm">
-
-
+<PageTitle> Registro de T&eacute;cnicos</PageTitle>
+<EditForm Model="tecnico" OnInvalidSubmit="Guardar" FormName="tecnicoForm">
         <DataAnnotationsValidator />
-        <div class="container"> 
-            <div class=" card shadow-lg">
+        <div class="container">
+            <div class="card shadow-lg">
                 <div class="card-header">
-                    <h3> Crear Tecnicos</h3>
+                    <h3>Crear Tecnico</h3>
                 </div>
-                <div class="card-body">
-                    
-                        @*TecnicoId*@
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">...</div>
-                        <label for="TecnicoId" class="form-label">T&ecute;cnicoId:</label>
-                    </div class="input-group">
-                               <div style="width: 40%; height: 1em;">
-                                   <InputNumber @bind-Value="tecnico.TecnicosId"class="form-control" style="font-size: 0.8em;" aria-describedby="BotonBuscar" />
-                               </div>
-                               <ValidationMessage For="@(() => Tecnicos.TecnicoId)"
-       
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @*TecnicoId*@
+                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">...</div>
+                </div>
+                @*Tecnico Nombre*@
+                <div class="mb-3">
+                    <label for="Nombres" class="form-check label">Nombre:</label>
+                    <InputText @bind-Value="tecnico.TecnicosName" class="form-control" />
+                    <ValidationMessage For="@(() => tecnico.TecnicosName)" />
+                @if (Existe)
+                {
+                    <t class="text-danger">Este nombre se encuentra en uso.</t>
+                }
+            </div>
+            @*SueldoHora*@
+            <div class="mb-3">
+                <label>SueldoHora</label>
+                <InputNumber @bind-Value="tecnico.SueldoHora"class="form-control" />
+                <ValidationMessage For="@(() => tecnico.SueldoHora)" />
+
+            </div>
+            </div>
+
+            <div class="card-footer bg-light d-flex justify-content-center mt-3">
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-outline-light ml-2"><span class="bi bi-check-circle-fill"></span>Guardar</button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><span class="bi bi-trash-fill"></span> Eliminar </button>
+                    <button type="button" class="btn btn-outline-danger" @onclick="Retroceder"><span class="bi bi-arrow-bar-left"></span> Regresar </button>
+                </div>
+
+            </div>
+
+        </div>
                   
 </EditForm>
 
@@ -52,7 +73,7 @@
     public async Task Buscar()
     {
         Existe = false;
-        var tecnicoEncontrado = await tecnicoService.Buscar(tecnico.TecnicosId);
+        var tecnicoEncontrado = await tecnicoServices.Buscar(tecnico.TecnicosId);
 
         if (tecnicoEncontrado != null)
         {
@@ -71,7 +92,7 @@
             return;
         }
 
-        var guardo = await tecnicoService.Guardar(tecnico);
+        var guardo = await tecnicoServices.Guardar(tecnico);
         if (guardo)
         {
             Nuevo();
@@ -81,7 +102,7 @@
 
     public async Task Eliminar()
     {
-        var eliminado = await tecnicoService.Eliminar(tecnico.TecnicosId);
+        var eliminado = await tecnicoServices.Eliminar(tecnico.TecnicosId);
         Nuevo();
     }
 
@@ -92,7 +113,7 @@
 
     public async Task<bool> Validar()
     {
-        var listaTecnicos = await tecnicoService.Listar(t => t.TecnicosName.ToLower() == tecnico.TecnicosName.ToLower() && t.TecnicosId != tecnico.TecnicosId);
+        var listaTecnicos = await tecnicoServices.Listar(t => t.TecnicosName.ToLower() == tecnico.TecnicosName.ToLower() && t.TecnicosId != tecnico.TecnicosId);
         Existe = listaTecnicos.Any();
         return Existe;
     }
